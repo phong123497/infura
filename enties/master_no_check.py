@@ -1,7 +1,5 @@
-import pandas as pd
-from sqlalchemy import create_engine, Column, Integer, BigInteger, String, Boolean, SmallInteger, Time, TIMESTAMP, ForeignKey, select
+from sqlalchemy import Column, Integer, BigInteger, String, Boolean, SmallInteger, Time, TIMESTAMP, select
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker, Session
 from datetime import datetime
 
 Base = declarative_base()
@@ -9,7 +7,6 @@ Base = declarative_base()
 # Định nghĩa bảng `id_master`
 class IdMaster(Base):
     __tablename__ = 'id_master'
-    
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     table_name = Column(String(255), nullable=False)
     created_at = Column(TIMESTAMP, nullable=False, default=datetime.now)
@@ -36,19 +33,6 @@ class RoundMaster(Base):
     is_morning = Column(SmallInteger)
     delete_flag = Column(Boolean, default=False)
     update_time = Column(TIMESTAMP, nullable=False, default=datetime.now)
-
-
-# engine = create_engine('postgresql://postgres:12345@localhost:5432/test_db')
-
-# Tạo các bảng trong cơ sở dữ liệu nếu chưa tồn tại
-# Base.metadata.create_all(engine)
-
-# # Tạo session để tương tác với cơ sở dữ liệu
-# Session = sessionmaker(bind=engine)
-# session = Session()
-
-# # Đóng session khi không sử dụng nữa
-# session.close()
 
 
 class RoundMasterMapperNoCheck:

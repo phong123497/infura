@@ -41,7 +41,7 @@ def round_and_is_morning_mapping(time_input: str):
             round_number = time_range['round']
             is_morning = time_range['morning']
             break  
-    print("round_number", round_number, "is_morning", is_morning)
+    # print("round_number", round_number, "is_morning", is_morning)
     return round_number, is_morning
 
 
@@ -75,7 +75,3 @@ def get_round_times( round_number: int, is_morning: int) -> tuple:
         return round_times.get((round_number, is_morning))
 
 
-
-# round_number, is_morning=  round_and_is_morning_mapping('00:30')
-# round_times = get_round_times(round_number, is_morning)
-# print(round_times)

@@ -1,15 +1,14 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, delete
 from sqlalchemy.orm import sessionmaker
 from master_no_check import Base as MasterBase
+from door import DoorPageData1,DoorPageData2
+from under_body import UnderBodyPageData1,UnderBodyPageData2, UnderBodyPageData3
 from base_model import BaseModel
 from datetime import datetime, time
 from sqlalchemy import inspect
-from master_no_check import Base as MasterBase
-from door import DoorPageData1, DoorPageData2
-from under_body import UnderBodyPageData1, UnderBodyPageData2, UnderBodyPageData3
-from saimen import SmPageData1, SmPageData2
-from datetime import datetime, time
-from sqlalchemy import inspect
+from sqlalchemy.schema import (
+    DropTable,
+)
 def init_database():
     # Create database engine
     engine = create_engine('postgresql://postgres:12345@localhost:5432/demo1')
@@ -23,8 +22,8 @@ def init_database():
                          'under_body_page_data1', 'under_body_page_data2', 'under_body_page_data3',
                          'sm_page_data1', 'sm_page_data2']
     for table_name in tables_to_exclude:
-        if table_name in MasterBase.metadata.tables:
-            MasterBase.metadata.tables[table_name].create(engine, checkfirst=True)
+        if table_name in BaseModel.metadata.tables:
+            BaseModel.metadata.tables[table_name].create(engine, checkfirst=True)
 
     # Create a session
     Session = sessionmaker(bind=engine)
@@ -113,20 +112,32 @@ def check_tables_exist():
             print(f"Table {table} exists")
         else:
             print(f"Table {table} does not exist")
+def delete_tables():
+    engine = create_engine('postgresql://postgres:12345@localhost:5432/fm')
+    MasterBase.metadata.drop_all(engine)  
+    BaseModel.metadata.drop_all(engine)   
+    inspector = inspect(engine)
+    existing_tables = inspector.get_table_names()
+    # tables_to_exclude = ['door_page_data1', 'door_page_data2',
+    #                      'under_body_page_data1', 'under_body_page_data2', 'under_body_page_data3',
+    #                      'sm_page_data1', 'sm_page_data2']
+
+    for table in existing_tables:
+         if table in BaseModel.metadata.tables:
+            BaseModel.metadata.tables[table].drop(engine)
 
 if __name__ == "__main__":
     # Check existing tables
-    print("Checking existing tables...")
-    check_tables_exist()
-    
-    # Initialize database
-    print("\nInitializing database...")
-    init_database()
-    
-    # # Verify tables after initialization
-    # print("\nVerifying tables after initialization...")
+    # print("Checking existing tables...")
     # check_tables_exist()
-
+    
+    # # Initialize database
+    # print("\nInitializing database...")
+    # init_database()
+    
+    # delete all table 
+    delete_tables()
+    
 
 
 

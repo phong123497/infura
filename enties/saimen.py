@@ -1,12 +1,10 @@
-from sqlalchemy import create_engine, Column, Integer, BigInteger, String, Boolean, SmallInteger, Time, TIMESTAMP, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-from base_model import BaseModel
+from sqlalchemy import create_engine, Column, Integer
+from enties.base_model import BaseModel
 
 class SmPageData1(BaseModel):
     __tablename__ = 'sm_page_data1'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     smr_daisu = Column(Integer)
     sml_daisu = Column(Integer)
     roof_daisu = Column(Integer)
@@ -48,7 +46,7 @@ class SmPageData1(BaseModel):
 class SmPageData2(BaseModel):
     __tablename__ = 'sm_page_data2'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     inner_r_daisu = Column(Integer)
     inner_l_daisu = Column(Integer)
     cprfr_daisu = Column(Integer)

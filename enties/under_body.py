@@ -1,13 +1,11 @@
-from sqlalchemy import Column, Integer, BigInteger, String, Boolean, SmallInteger, Time, TIMESTAMP, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-from base_model import BaseModel
+from sqlalchemy import Column, Integer
+from enties.base_model import BaseModel
 
 
 
 class UnderBodyPageData1(BaseModel):
     __tablename__ = 'under_body_page_data1'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     frfr_r_daisu = Column(Integer)
     frfr_l_daisu = Column(Integer)
     apron_r_daisu = Column(Integer)
@@ -50,7 +48,7 @@ class UnderBodyPageData1(BaseModel):
 class UnderBodyPageData2(BaseModel):
     __tablename__ = 'under_body_page_data2'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     fsmr_daisu = Column(Integer)
     fsml_daisu = Column(Integer)
     dash_daisu = Column(Integer)
@@ -86,7 +84,7 @@ class UnderBodyPageData2(BaseModel):
 class UnderBodyPageData3(BaseModel):
     __tablename__ = 'under_body_page_data3'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     noa_e_c_daisu = Column(Integer)
     al_e_c_daisu = Column(Integer)
     noa_ctr_daisu = Column(Integer)
