@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer
-from enties.base_model import BaseModel
+from .base_model import BaseModel
 
 
 

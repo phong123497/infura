@@ -11,7 +11,7 @@ from mapper.door_mapper import DoorPageData1Mapper, DoorPageData2Mapper
 from mapper.under_body_mapper import UnderBodyPageData1Mapper, UnderBodyPageData2Mapper, UnderBodyPageData3Mapper
 from mapper.saimen_mapper import SmPageData1Mapper, SmPageData2Mapper
 from enties.master_no_check import RoundMasterMapperNoCheck
-from mapper.columns_mapping import (round_master_columns, door1_columns, door2_columns,
+from mapper.columns_mapping import (id_master_columns,round_master_columns, door1_columns, door2_columns,
                                    under_body1_columns, under_body2_columns, under_body3_columns,
                                    sm_page_data1_columns, sm_page_data2_columns)
 
@@ -33,18 +33,12 @@ class MainApp:
         self.data_processor = DataProcessor()
         self.database_manager = DatabaseManager()
 
-    def process_door_data(self, merged_df, table_mappers, session):
+    def process_door_data(self, merged_df, table_mappers, session, id_master_ids,id_master_created_times):
         try:
             df_door1 = merged_df[door1_columns]
             df_door2 = merged_df[door2_columns]
-            door1_table_name = 'door_page_data1'
-            door2_table_name = 'door_page_data2'
-
-            id_master_ids_door1 = self.database_manager.insert_id_master_data(session, df_door1, door1_table_name)
-            id_master_ids_door2 = self.database_manager.insert_id_master_data(session, df_door2, door2_table_name)
-
-            self.database_manager.insert_model_data(session, df_door1, table_mappers[0], id_master_ids_door1)
-            self.database_manager.insert_model_data(session, df_door2, table_mappers[1], id_master_ids_door2)
+            self.database_manager.insert_model_data(session, df_door1, table_mappers[0], id_master_ids, id_master_created_times)
+            self.database_manager.insert_model_data(session, df_door2, table_mappers[1], id_master_ids,id_master_created_times)
             logger.info("Successfully processed door data.")
 
         except Exception as e:
@@ -52,19 +46,15 @@ class MainApp:
             logger.error(f"Error processing door data: {e}", exc_info=True)
             raise
 
-    def process_under_body_data(self, merged_df, table_mappers, session):
+    def process_under_body_data(self, merged_df, table_mappers, session,id_master_ids,id_master_created_times):
         try:
             df_under_body1 = merged_df[under_body1_columns]
             df_under_body2 = merged_df[under_body2_columns]
             df_under_body3 = merged_df[under_body3_columns]
 
-            id_master_ids_under_body1 = self.database_manager.insert_id_master_data(session, df_under_body1, 'under_body_page_data1')
-            id_master_ids_under_body2 = self.database_manager.insert_id_master_data(session, df_under_body2, 'under_body_page_data2')
-            id_master_ids_under_body3 = self.database_manager.insert_id_master_data(session, df_under_body3, 'under_body_page_data3')
-
-            self.database_manager.insert_model_data(session, df_under_body1, table_mappers[0],id_master_ids_under_body1)
-            self.database_manager.insert_model_data(session, df_under_body2, table_mappers[1],id_master_ids_under_body2)
-            self.database_manager.insert_model_data(session, df_under_body3, table_mappers[2],id_master_ids_under_body3)
+            self.database_manager.insert_model_data(session, df_under_body1, table_mappers[0],id_master_ids,id_master_created_times)
+            self.database_manager.insert_model_data(session, df_under_body2, table_mappers[1],id_master_ids,id_master_created_times)
+            self.database_manager.insert_model_data(session, df_under_body3, table_mappers[2],id_master_ids,id_master_created_times)
             logger.info("Successfully processed under body data.")
 
         except Exception as e:
@@ -72,22 +62,16 @@ class MainApp:
             logger.error(f"Error processing under body data: {e}", exc_info=True)
             raise
 
-    def process_sm_data(self, merged_df, table_mappers, session):
+    def process_sm_data(self, merged_df, table_mappers, session,id_master_ids,id_master_created_times):
         try:
             if table_mappers is None:
                 logger.warning("No table mappers available for SM data.")
-                return
+                return  
 
             df_sm1 = merged_df[sm_page_data1_columns]
             df_sm2 = merged_df[sm_page_data2_columns]
-            sm_name1 = 'sm_page_data1'
-            sm_name2 = 'sm_page_data2'
-
-            id_master_ids_sm1 = self.database_manager.insert_id_master_data(session, df_sm1, sm_name1)
-            id_master_ids_sm2 = self.database_manager.insert_id_master_data(session, df_sm2, sm_name2)
-
-            self.database_manager.insert_model_data(session, df_sm1, table_mappers[0],id_master_ids_sm1)
-            self.database_manager.insert_model_data(session, df_sm2, table_mappers[1],id_master_ids_sm2)
+            self.database_manager.insert_model_data(session, df_sm1, table_mappers[0],id_master_ids,id_master_created_times)
+            self.database_manager.insert_model_data(session, df_sm2, table_mappers[1],id_master_ids,id_master_created_times)
             logger.info("Successfully processed SM data.")
 
         except Exception as e:
@@ -120,7 +104,7 @@ class MainApp:
             try:
                 merged_df = reduce(lambda left, right: pd.merge(left, right, on='収集日時', how='inner'), dataframes)
 
-                merged_df['収集日時'] = pd.to_datetime(merged_df['収集日時'], format='%Y/%m/%d %H:%M', errors="coerce")
+                # merged_df['収集日時'] = pd.to_datetime(merged_df['収集日時'], format='%Y/%m/%d %H:%M', errors="coerce")
                 merged_df['hour_minute'] = merged_df['収集日時'].dt.strftime('%H:%M')
                 merged_df['year'] = merged_df['収集日時'].dt.year
                 merged_df['month'] = merged_df['収集日時'].dt.month
@@ -135,7 +119,7 @@ class MainApp:
                 round_info = self.data_processor.get_round_info_for_all_times(merged_df)
 
                 merged_df = pd.merge(merged_df, round_info, on='hour_minute', how='inner')
-                merged_df.to_csv(output_file,  encoding="shift-jis",index=False)
+                # merged_df.to_csv(output_file,  encoding="shift-jis",index=False)
                 table_mappers = tabel_names_mapper(category_name)
                 if table_mappers:
                     session = self.database_manager.connect_to_db()
@@ -153,13 +137,15 @@ class MainApp:
                         round_master = [round_mst_no_check.map_to_fields(row) for idx, row in round_master.iterrows()]
                         session.add_all(round_master)
                         session.flush()  # Flush to get generated IDs
+                        id_master =  merged_df[id_master_columns]
+                        id_master_ids,id_master_created_times = self.database_manager.insert_id_master_data(session, id_master)
                         
                         if category_name == "ドア":
-                            self.process_door_data(merged_df, table_mappers, session)
+                            self.process_door_data(merged_df, table_mappers, session, id_master_ids,id_master_created_times )
                         elif category_name == "UB":
-                            self.process_under_body_data(merged_df, table_mappers, session)
+                            self.process_under_body_data(merged_df, table_mappers, session,id_master_ids,id_master_created_times)
                         elif category_name == "SM":
-                            self.process_sm_data(merged_df, table_mappers, session)
+                            self.process_sm_data(merged_df, table_mappers, session,id_master_ids,id_master_created_times)
 
                         session.commit()  # Commit if all successful
                         logger.info("Data processing completed successfully. Committing transaction.")

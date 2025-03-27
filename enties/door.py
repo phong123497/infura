@@ -1,5 +1,5 @@
 from sqlalchemy import  Column, Integer
-from enties.base_model import BaseModel
+from .base_model import BaseModel
 
 class DoorPageData1(BaseModel):
     __tablename__ = 'door_page_data1'

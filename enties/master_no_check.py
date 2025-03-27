@@ -4,13 +4,12 @@ from datetime import datetime
 
 Base = declarative_base()
 
-# Định nghĩa bảng `id_master`
+
 class IdMaster(Base):
     __tablename__ = 'id_master'
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    table_name = Column(String(255), nullable=False)
-    created_at = Column(TIMESTAMP, nullable=False, default=datetime.now)
-    delete_flag = Column(Boolean, default=False)
+    created_at = Column(TIMESTAMP, nullable=False, default=datetime.now, index=True)
+    delete_flag = Column(SmallInteger, nullable=False, default=0)
 
 # Định nghĩa bảng `parameter_master`
 class ParameterMaster(Base):
@@ -20,7 +19,7 @@ class ParameterMaster(Base):
     parameter_name = Column(String(255), nullable=False)
     parameter_value = Column(String(255))
     created_at = Column(TIMESTAMP, nullable=False, default=datetime.now)
-    delete_flag = Column(Boolean, default=False)
+    delete_flag = Column(SmallInteger, nullable=False, default=0)
 
 # Định nghĩa bảng `round_master`
 class RoundMaster(Base):
@@ -31,7 +30,7 @@ class RoundMaster(Base):
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
     is_morning = Column(SmallInteger)
-    delete_flag = Column(Boolean, default=False)
+    delete_flag = Column(SmallInteger, nullable=False, default=0)
     update_time = Column(TIMESTAMP, nullable=False, default=datetime.now)
 
 

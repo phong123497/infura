@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO,
 
 def check_folder_type(root_dir):
     folder_categories = os.listdir(root_dir)
-    expected_categories = ["SM", "ドア", "UB"]
+    expected_categories = ["SM", "ドア", "UB", "Andon", "Ndai"]
     result_categories = []
     for category in folder_categories:
         if category in expected_categories:
@@ -56,7 +56,8 @@ def process_directory(root_dir, category_name):
                 process_csv_files(data_category_dir, category_name)
             else:
                 logging.error(f"Directory {data_category_dir} does not exist or is not a directory.")
-
+ 
+    
 
 def tabel_names_mapper(category_name):
     if category_name == "ドア":
