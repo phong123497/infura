@@ -1,10 +1,9 @@
-from sqlalchemy import  Column, Integer, BigInteger, String, Boolean, SmallInteger, Time, TIMESTAMP, ForeignKey
-from sqlalchemy.orm import relationship, sessionmaker
-from base_model import BaseModel
+from sqlalchemy import  Column, Integer
+from .base_model import BaseModel
 
 class DoorPageData1(BaseModel):
     __tablename__ = 'door_page_data1'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     f_dr_daisu = Column(Integer)
     f_dl_daisu = Column(Integer)
     s_dr_daisu = Column(Integer)
@@ -45,7 +44,7 @@ class DoorPageData1(BaseModel):
 # Define the `door_page_data2` table
 class DoorPageData2(BaseModel):
     __tablename__ = 'door_page_data2'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     fender_daisu = Column(Integer)
     sps_daisu = Column(Integer)
     fender_em_time = Column(Integer)

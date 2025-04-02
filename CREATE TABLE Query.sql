@@ -311,7 +311,7 @@ CREATE TABLE under_body_page_data3 (
     round SMALLINT, 
     round_update BOOLEAN DEFAULT FALSE,
     is_morning SMALLINT ,
-      year SMALLINT,
+    year SMALLINT,
     month SMALLINT,
     day SMALLINT,
     hour  SMALLINT,
@@ -401,9 +401,8 @@ CREATE TABLE ndai_page_data (
     ctrr_kotei_shashu INTEGER,
     ctrr_kotei_renban INTEGER,
     ctrr_kotei_sukitto_no INTEGER,
-update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     delete_flag BOOLEAN DEFAULT FALSE
--- FOREIGN KEY (round, is_morning) REFERENCES round_master(round_number, is_morning)
 );
 
 
@@ -526,7 +525,6 @@ CREATE TABLE andon_page_data (
       _970_ec INTEGER,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     delete_flag BOOLEAN DEFAULT FALSE,
--- FOREIGN KEY (round, is_morning) REFERENCES round_master(round_number, is_morning)
 );
 
 insert into id_master (table_name, created_at, delete_flag) 
