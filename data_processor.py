@@ -3,26 +3,29 @@ from mapper.round_mapping import round_and_is_morning_mapping, get_round_times, 
 from logging_config import logger
 from datetime import datetime
 from mapper.round_mapping import round_times
-
-
+from constants import (
+    CATEGORY_DOOR, CATEGORY_UB, CATEGORY_SM, CATEGORY_ANDON, CATEGORY_NDAI,
+    DAISU, SHOKUSEI_YOBIDASHI, UB_DOOR_SM_CATEGORIES,
+    START_TIME_AM, END_TIME_AM, END_TIME_PM
+)
 class DataProcessor:
  
     def process_column_names(self, df, category_name):
         new_columns = []
-        df = df.fillna(0)
-        if category_name in [ "UB"]: 
+        # df = df.fillna(0)
+        if category_name  == CATEGORY_UB:
             end_index = -2
             suffix = "_ub"
-        elif category_name in ["ドア"]:
+        elif category_name  == CATEGORY_DOOR:
             end_index = -2
             suffix = "_door"
-        elif category_name in ["SM"]:
+        elif category_name == CATEGORY_SM:
             end_index = None
             suffix = "_sm"
-        elif category_name in ["Andon"]:
+        elif category_name == CATEGORY_ANDON:
             end_index = None
             suffix = "_andon"
-        elif category_name in [ "Ndai"]:
+        elif category_name  == CATEGORY_NDAI:
             end_index = None
             suffix = "_ndai"
         for col in df.columns[1:]:
@@ -32,39 +35,35 @@ class DataProcessor:
         df.columns = [df.columns[0]] + new_columns  
         return df
    
-    def process_column_names_ndai(self,df):
-        string_columns = df.columns[-4:]
-        df[string_columns] = df[string_columns].fillna("") 
-        df = df.fillna(0) 
-        for col in df.columns[1:-4]:  
-            df.loc[:, col] = (df[col].abs() / 100).round(0).astype(int)
-        return df
-    
-    def divide_100_convert_int( self, df, category_name):
-        df_cleaned = df 
-        # df_cleaned = df_cleaned.copy()  
+    def divide_100_convert_int( self, df_cleaned, category_name):
         try:
-            if category_name in ["SM", "UB", "ドア", "Andon"]: 
+            if category_name in UB_DOOR_SM_CATEGORIES: 
+                df_cleaned = df_cleaned.fillna(0) 
                 for col in df_cleaned.columns[1:]:
-                    if 'daisu' not in col:
+                    if DAISU not in col and SHOKUSEI_YOBIDASHI not in col:
                         # df[col] = pd.to_numeric(df[col], errors='coerce')
                         df_cleaned.loc[:, col] = (df_cleaned[col].abs() / 100).round(0).astype(int) 
-            else: # for ndai
-               df_cleaned = self.process_column_names_ndai(df_cleaned)
+                    else:
+                        df_cleaned.loc[:, col] = df_cleaned[col].astype(int)
+            elif category_name == CATEGORY_NDAI:
+                string_columns = df_cleaned.columns[-4:]
+                df_cleaned[string_columns] = df_cleaned[string_columns].fillna("") 
+                df_cleaned = df_cleaned.fillna(0)
+            else:
+                df_cleaned = df_cleaned.fillna(0) 
         except Exception as e:
             print(f"error at divide_100_convert_int{e}")
         return df_cleaned
     def drop_column_by_time(self,df, col):
-        time_now = datetime.now().strftime("%H%M%S")  
-
-        if "063000" <= time_now < "171000":
+        time_now = datetime.now().strftime("%H:%M:%S") 
+        if START_TIME_AM <= time_now < END_TIME_AM:
             if "_PM" in col:
                 df.drop(columns=[col], inplace=True)  # Drop the column if it contains "_PM_"
             else:
                 rename_col = col.replace("_AM", "")  # Rename the column if it contains "_AM_"
                 return rename_col
 
-        elif "171000" <= time_now or time_now < "031000":
+        elif END_TIME_AM <= time_now or time_now < END_TIME_PM:
             if "_AM" in col:
                 df.drop(columns=[col], inplace=True)  
             else:
@@ -77,11 +76,10 @@ class DataProcessor:
         try:
             df = pd.read_csv(file_path, encoding="shift-jis", skiprows=[1])
             df = self.divide_100_convert_int(df,category_name)
-            if category_name in ["SM", "UB", "ドア"]: 
+            if category_name in UB_DOOR_SM_CATEGORIES: 
                 new_columns = [self.drop_column_by_time(df, col) for col in df.columns]
 
                 new_columns = [col for col in new_columns if col is not None]
-
                 df.columns = new_columns
                 df = self.process_column_names(df, category_name)
             else: # for Andon and Ndai

@@ -52,6 +52,14 @@ under_body3_columns = common_columns + [
     'noa_e_c_shokusei_yobidashi_ub', 'al_e_c_shokusei_yobidashi_ub', 'noa_ctr_shokusei_yobidashi_ub', 'al_ctr_shokusei_yobidashi_ub', 'noa_r_u_shokusei_yobidashi_ub', 'al_r_u_shokusei_yobidashi_ub',
     'noa_e_c_sei_yobidashi_ub', 'al_e_c_sei_yobidashi_ub', 'noa_ctr_sei_yobidashi_ub', 'al_ctr_sei_yobidashi_ub', 'noa_r_u_sei_yobidashi_ub', 'al_r_u_sei_yobidashi_ub'
 ]
+under_body4_columns = common_columns+ [
+    'e_c_joku_daisu_ub','ctr_joku_daisu_ub','r_u_joku_daisu_ub','motomachi_daisu_ub',
+    'e_c_joku_em_time_ub','ctr_joku_em_time_ub','r_u_joku_em_time_ub','motomachi_em_time_ub',
+    'e_c_joku_boman_ub','ctr_joku_boman_ub','r_u_joku_boman_ub','motomachi_boman_ub',
+    'e_c_joku_boketsu_ub','ctr_joku_boketsu_ub','r_u_joku_boketsu_ub','motomachi_boketsu_ub',
+    'e_c_joku_shokusei_yobidashi_ub','ctr_joku_shokusei_yobidashi_ub','r_u_joku_shokusei_yobidashi_ub','motomachi_shokusei_yobidashi_ub',
+    'e_c_joku_sei_yobidashi_ub','ctr_joku_sei_yobidashi_ub','r_u_joku_sei_yobidashi_ub','motomachi_sei_yobidashi_ub'
+]
 
 sm_page_data1_columns = common_columns + [
     'smr_daisu_sm', 'sml_daisu_sm', 'roof_daisu_sm', 'header_daisu_sm', 'outer_r_daisu_sm', 'outer_l_daisu_sm',

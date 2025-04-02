@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, delete , text ,inspect
 from sqlalchemy.orm import sessionmaker
-from enties.master_no_check import Base as MasterBase
+from SQL.enties.master import Base as MasterBase
 from enties.base_model import BaseModel
 from enties.door import DoorPageData1, DoorPageData2
 from enties.under_body import UnderBodyPageData1, UnderBodyPageData2, UnderBodyPageData3

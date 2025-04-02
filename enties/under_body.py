@@ -122,5 +122,37 @@ class UnderBodyPageData3(BaseModel):
     noa_r_u_sei_yobidashi = Column(Integer)
     al_r_u_sei_yobidashi = Column(Integer)
 
-    # round_master = relationship('RoundMaster', foreign_keys=[round, is_morning])
 
+class UnderBodyPageData4(BaseModel):
+    __tablename__ = 'under_body_page_data4'
+    
+    id = Column(Integer, primary_key=True)
+    e_c_joku_daisu = Column(Integer)
+    ctr_joku_daisu = Column(Integer)
+    r_u_joku_daisu = Column(Integer)
+    motomachi_daisu= Column(Integer)
+    
+    e_c_joku_em_time = Column(Integer)
+    ctr_joku_em_time = Column(Integer)
+    r_u_joku_em_time = Column(Integer)
+    motomachi_em_time = Column(Integer)
+
+    e_c_joku_boman = Column(Integer)
+    ctr_joku_boman = Column(Integer)
+    r_u_joku_boman = Column(Integer)
+    motomachi_boman = Column(Integer)
+
+    e_c_joku_boketsu = Column(Integer)
+    ctr_joku_boketsu = Column(Integer)
+    r_u_joku_boketsu = Column(Integer)
+    motomachi_boketsu = Column(Integer)
+
+    e_c_joku_shokusei_yobidashi = Column(Integer)
+    ctr_joku_shokusei_yobidashi = Column(Integer)
+    r_u_joku_shokusei_yobidashi = Column(Integer)
+    motomachi_shokusei_yobidashi = Column(Integer)
+    
+    e_c_joku_sei_yobidashi = Column(Integer)
+    ctr_joku_sei_yobidashi = Column(Integer)
+    r_u_joku_sei_yobidashi = Column(Integer)
+    motomachi_sei_yobidashi = Column(Integer)

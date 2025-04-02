@@ -1,4 +1,4 @@
-from enties.under_body import UnderBodyPageData1, UnderBodyPageData2, UnderBodyPageData3
+from enties.under_body import UnderBodyPageData1, UnderBodyPageData2, UnderBodyPageData3, UnderBodyPageData4
 from .base_mapper import BaseMapper
 
 
@@ -121,4 +121,42 @@ class UnderBodyPageData3Mapper(BaseMapper):
         model_instance.al_ctr_sei_yobidashi = row.get('al_ctr_sei_yobidashi_ub', 0)
         model_instance.noa_r_u_sei_yobidashi = row.get('noa_r_u_sei_yobidashi_ub', 0)
         model_instance.al_r_u_sei_yobidashi = row.get('al_r_u_sei_yobidashi_ub', 0)
+        return model_instance
+    
+
+class UnderBodyPageData4Mapper(BaseMapper):
+    def map_to_model(self, row):
+        model_instance = UnderBodyPageData4()
+        model_instance = self.map_common_fields(row, model_instance)
+        
+        model_instance.e_c_joku_daisu = row.get('e_c_joku_daisu_ub', 0)
+        model_instance.ctr_joku_daisu = row.get('ctr_joku_daisu_ub', 0)
+        model_instance.r_u_joku_daisu = row.get('r_u_joku_daisu_ub', 0)
+        model_instance.motomachi_daisu = row.get('motomachi_daisu_ub', 0)
+        
+        model_instance.e_c_joku_em_time = row.get('e_c_joku_em_time_ub', 0)
+        model_instance.ctr_joku_em_time = row.get('ctr_joku_em_time_ub', 0)
+        model_instance.r_u_joku_em_time = row.get('r_u_joku_em_time_ub', 0)
+        model_instance.motomachi_em_time = row.get('motomachi_em_time_ub', 0)
+        
+        model_instance.e_c_joku_boman = row.get('e_c_joku_boman_ub', 0)
+        model_instance.ctr_joku_boman = row.get('ctr_joku_boman_ub', 0)
+        model_instance.r_u_joku_boman = row.get('r_u_joku_boman_ub', 0)
+        model_instance.motomachi_boman = row.get('motomachi_boman_ub', 0)
+        
+        model_instance.e_c_joku_boketsu = row.get('e_c_joku_boketsu_ub', 0)
+        model_instance.ctr_joku_boketsu = row.get('ctr_joku_boketsu_ub', 0)
+        model_instance.r_u_joku_boketsu = row.get('r_u_joku_boketsu_ub', 0)
+        model_instance.motomachi_boketsu = row.get('motomachi_boketsu_ub', 0)
+        
+        model_instance.e_c_joku_shokusei_yobidashi = row.get('e_c_joku_shokusei_yobidashi_ub', 0)
+        model_instance.ctr_joku_shokusei_yobidashi = row.get('ctr_joku_shokusei_yobidashi_ub', 0)
+        model_instance.r_u_joku_shokusei_yobidashi = row.get('r_u_joku_shokusei_yobidashi_ub', 0)
+        model_instance.motomachi_shokusei_yobidashi = row.get('motomachi_shokusei_yobidashi_ub', 0)
+        
+        model_instance.e_c_joku_sei_yobidashi = row.get('e_c_joku_sei_yobidashi_ub', 0)
+        model_instance.ctr_joku_sei_yobidashi = row.get('ctr_joku_sei_yobidashi_ub', 0)
+        model_instance.r_u_joku_sei_yobidashi = row.get('r_u_joku_sei_yobidashi_ub', 0)
+        model_instance.motomachi_sei_yobidashi = row.get('motomachi_sei_yobidashi_ub', 0)
+
         return model_instance

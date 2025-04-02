@@ -1,17 +1,17 @@
-from sqlalchemy import Column, Integer, BigInteger, String, Boolean, SmallInteger, Time, TIMESTAMP, select
+from sqlalchemy import Column, Integer, BigInteger, String, SmallInteger, Time, TIMESTAMP, select
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
 Base = declarative_base()
 
-
+# id_master define
 class IdMaster(Base):
     __tablename__ = 'id_master'
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     created_at = Column(TIMESTAMP, nullable=False, default=datetime.now, index=True)
     delete_flag = Column(SmallInteger, nullable=False, default=0)
 
-# Định nghĩa bảng `parameter_master`
+#  parameter_maste define
 class ParameterMaster(Base):
     __tablename__ = 'parameter_master'
     
@@ -21,7 +21,7 @@ class ParameterMaster(Base):
     created_at = Column(TIMESTAMP, nullable=False, default=datetime.now)
     delete_flag = Column(SmallInteger, nullable=False, default=0)
 
-# Định nghĩa bảng `round_master`
+# round master define
 class RoundMaster(Base):
     __tablename__ = 'round_master'
     
@@ -34,13 +34,13 @@ class RoundMaster(Base):
     update_time = Column(TIMESTAMP, nullable=False, default=datetime.now)
 
 
-class RoundMasterMapperNoCheck:
+class RoundMasterMapper:
     def map_to_fields(seld, row):
         return RoundMaster(
-            round_number=row['round_number'],
-            start_time=row['start_time'],
-            end_time=row['end_time'],
-            is_morning=row['is_morning'],
-            delete_flag=row['delete_flag'],
-            update_time=row['update_time']
+            round_number=row.get('round_number'),
+            start_time=row.get('start_time'),
+            end_time=row.get('end_time'),
+            is_morning=row.get('is_morning'),
+            delete_flag=row.get('delete_flag'),
+            update_time=row.get('update_time'),
         )

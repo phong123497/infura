@@ -1,56 +1,64 @@
-# database_manager.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from enties.master_no_check import IdMaster
+from enties.master import IdMaster
 import pandas as pd
 from logging_config import logger
-
+from constants import DB_CONFIG
 
 
 class DatabaseManager:
-    def __init__(self, db_url='postgresql://postgres:12345@localhost:5432/test_db'):
-        self.engine = create_engine(db_url)
-        self.Session = sessionmaker(bind=self.engine)
+    def __init__(self):
+        self.connection_string = (
+            f"postgresql://{DB_CONFIG['USER']}:{DB_CONFIG['PASSWORD']}@"
+            f"{DB_CONFIG['HOST']}:{DB_CONFIG['PORT']}/{DB_CONFIG['DATABASE']}"
+        )
+        self.engine = None
+        self.Session = None
+        self.processed_created_at = set()
 
     def connect_to_db(self):
         try:
-            session = self.Session()
-            logger.info("Successfully connected to the database.")
-            return session
+            if not self.engine:
+                self.engine = create_engine(self.connection_string)
+                self.Session = sessionmaker(bind=self.engine)
+            return self.Session()
         except Exception as e:
-            logger.error(f"Error connecting to the database: {e}", exc_info=True)
-            return None  # Or raise an exception if it's critical
+            logger.error(f"Database connection error: {e}")
+            return None
 
-    def map_to_id_master(self, row):
-        try:
-            created_at_value = pd.to_datetime(row['収集日時'], format='%Y/%m/%d %H:%M', errors="coerce")
-            id_master_instance = IdMaster(
-                created_at = created_at_value,
-                delete_flag = 0
-            )
-            return id_master_instance
-        except Exception as e:
-            logger.error(f"Error mapping row to IdMaster{e}", exc_info=True)
-            raise
-    
-    
     def insert_id_master_data(self, session, df):
         try:
-            id_master_instances = df.apply(lambda row: self.map_to_id_master(row), axis=1).tolist() # Convert to list
-            session.add_all(id_master_instances)
-            session.flush()  # Flush to get generated IDs
+            id_master_instances = []
             id_master_ids = []
             id_master_created_at = []
-            # Get the IDs of the inserted IdMaster instances
+
+            for idx, row in df.iterrows():
+                created_at_value = pd.to_datetime(row['収集日時'], format='%Y/%m/%d %H:%M', errors="coerce")
+                if created_at_value in self.processed_created_at:
+                    logger.info(f"Skipping insert for duplicate created_at: {created_at_value}")
+                    continue  
+
+                id_master_instance = IdMaster(
+                    created_at=created_at_value,
+                    delete_flag=0
+                )
+                id_master_instances.append(id_master_instance)
+                
+             
+                self.processed_created_at.add(created_at_value)
+
+            session.add_all(id_master_instances)
+            session.flush()  # Flush to get generated IDs
+
             for instance in id_master_instances:
                 id_master_ids.append(instance.id)
                 id_master_created_at.append(instance.created_at)
-            logger.info(f"Successfully inserted id_master data for  IDs: {id_master_ids}")
-        
-            return id_master_ids ,id_master_created_at
+
+            logger.info(f"Successfully inserted id_master data for IDs: {id_master_ids}")
+            return id_master_ids, id_master_created_at
 
         except Exception as e:
-            session.rollback()
+            session.rollback() 
             logger.error(f"Error inserting id_master data with {id_master_ids}: {e}", exc_info=True)
             raise
 
