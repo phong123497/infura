@@ -1,30 +1,29 @@
 import os
 import schedule
 import time
-import sys
 import gc
 from functools import reduce
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
-from logging_config import logger
-from folder_manager import FolderManager
-from data_processor import DataProcessor
-from database_manager import DatabaseManager
+from .logging_config import logger
+from .folder_manager import FolderManager
+from .data_processor import DataProcessor
+from .database_manager import DatabaseManager
 from mapper.door_mapper import DoorPageData1Mapper, DoorPageData2Mapper
 from mapper.under_body_mapper import UnderBodyPageData1Mapper, UnderBodyPageData2Mapper, UnderBodyPageData3Mapper,UnderBodyPageData4Mapper
 from mapper.saimen_mapper import SmPageData1Mapper, SmPageData2Mapper
 from mapper.andon_mapper import AndonPageDataMapper
 from mapper.ndai_mapper import NdaiPageDataMapper
 from enties.master import RoundMasterMapper
-from mapper.round_mapping import round_and_is_morning_mapping
+from util.round_relate import round_and_is_morning_mapping
 from mapper.columns_mapping import (id_master_columns, common_columns, round_master_columns, door1_columns, door2_columns,
                                    under_body1_columns, under_body2_columns, under_body3_columns,under_body4_columns,
                                    sm_page_data1_columns, sm_page_data2_columns, andon_page_data_columns, ndai_page_data_columns)
 
-from constants import (
+from util.constants import (
     CATEGORY_DOOR, CATEGORY_UB, CATEGORY_SM, CATEGORY_ANDON, CATEGORY_NDAI,UB_DOOR_SM_CATEGORIES,
-    DATE_FORMAT, TIME_FORMAT
+    TIME_FORMAT,DATETIME_FORMAT, DEFAULT_DELETE_FLAG
 )
 
 
@@ -57,7 +56,7 @@ def get_column_mapping(category_name):
     return None
 
 
-class MainApp:
+class MainManager:
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.folder_manager = FolderManager(self.root_dir)
@@ -167,13 +166,13 @@ class MainApp:
                     df['収集日時'] = pd.to_datetime(df['収集日時'], errors='coerce')
 
                     # Now format '収集日時' to '%Y/%m/%d %H:%M'
-                    df['収集日時'] = df['収集日時'].dt.strftime('%Y/%m/%d %H:%M')
+                    df['収集日時'] = df['収集日時'].dt.strftime(DATETIME_FORMAT)
                     all_dataframes.append(df)
             except Exception as e:
                 logger.error(f"Error processing file {file_path.name}: {e}", exc_info=True)
 
     def process_directory(self, category_name, all_dataframes):
-        """Process directories based on category (e.g. SM, Door, under body, andon, ndai)."""
+        """Process directories based on category (SM, Door, under body, andon, ndai)."""
         round_num = self.folder_manager.get_folder_round_name()
         if category_name in UB_DOOR_SM_CATEGORIES:
             data_category_dir = os.path.join(self.root_dir, category_name, round_num)
@@ -248,7 +247,7 @@ class MainApp:
                     return
 
                 merged_df = reduce(lambda left, right: pd.merge(left, right, on='収集日時', how='inner'), all_dataframes)
-                merged_df['収集日時'] = pd.to_datetime(merged_df['収集日時'], format='%Y/%m/%d %H:%M', errors='coerce')
+                merged_df['収集日時'] = pd.to_datetime(merged_df['収集日時'], format= DATETIME_FORMAT, errors='coerce')
 
                 # Check if merged_df is empty
                 if merged_df.empty:
@@ -265,7 +264,7 @@ class MainApp:
 
                 # Add additional columns
                 merged_df['update_time'] = datetime.now()
-                merged_df['delete_flag'] = 0
+                merged_df['delete_flag'] = DEFAULT_DELETE_FLAG
                 
                 # Assume round_info is processed properly elsewhere
                 round_info = self.data_processor.get_round_info_for_all_times(merged_df)
@@ -324,6 +323,7 @@ class MainApp:
         except Exception as e:
            logger.error(f"A error: {e}", exc_info=True)
     # Add new method for scheduled execution
+    
     def scheduled_execution(self):
         start_time = time.time()
         logger.info("Starting scheduled execution...")
@@ -340,8 +340,8 @@ class MainApp:
     def run_scheduler(self):
         try:
             # Schedule the job to run every 20 seconds
-            schedule.every(10).seconds.do(self.scheduled_execution)
-            logger.info("Scheduler started - running every 10 seconds")
+            schedule.every(15).seconds.do(self.scheduled_execution)
+            logger.info("Scheduler started - running every 15 seconds")
             
             # Keep running until stop is called
             while self.is_running:
@@ -357,15 +357,17 @@ class MainApp:
         finally:
             logger.info("Scheduler stopped")
 
-if __name__ == "__main__":
-    try:
-        root_dir = "C:\\Users\\nguyen-duy-phong\\Downloads\\infura_data\\0322andon\\新しいフォルダー"
-        # root_dir = "C:\\Users\\nguyen-duy-phong\\Downloads\\infura_data\\0325data\\0325data"
-        app = MainApp(root_dir)
-        # Start the scheduler
-        app.run_scheduler()
-        # app.main()
 
-    except Exception as e:
-        logger.error(f"Application error: {e}", exc_info=True)
-        sys.exit(1)
+# if __name__ == "__main__":
+    # try:
+       
+    #     root_dir = "C:\\Users\\nguyen-duy-phong\\Downloads\\infura_data\\0322andon\\新しいフォルダー"
+    #     # root_dir = "C:\\Users\\nguyen-duy-phong\\Downloads\\infura_data\\0325data\\0325data"
+    #     app = MainManager(root_dir)
+    #     # Start the scheduler
+    #     app.run_scheduler()
+    #     # app.main()
+
+    # except Exception as e:
+    #     logger.error(f"Application error: {e}", exc_info=True)
+    #     # sys.exit(1)

@@ -1,11 +1,21 @@
 import logging
 import logging.config
 import os
+import sys
+from pathlib import Path
+from util.helper import get_root_dir
 
-# Define the log file path
-log_file_path = os.path.join(os.path.dirname(__file__), 'logs.log')
-if not os.path.exists(log_file_path):
-    os.makedirs(log_file_path)
+root_dir = get_root_dir()
+
+# Đường dẫn tệp log
+log_file_path = root_dir / 'logs'  #
+
+# Kiểm tra nếu thư mục logs không tồn tại, tạo mới
+if not log_file_path.exists():
+    log_file_path.mkdir(parents=True, exist_ok=True)
+
+# Định nghĩa đường dẫn tệp log
+log_file = log_file_path / 'logs.log'
 # Define the logging configuration
 logging_config = {
     'version': 1,
@@ -19,7 +29,7 @@ logging_config = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': log_file_path,
+            'filename': log_file,
             'formatter': 'standard',
             'encoding': 'utf-8',
         },
@@ -31,7 +41,8 @@ logging_config = {
     },
     'loggers': {
         '': {  # root logger
-            'handlers': ['file', 'console'],
+            # 'handlers': ['file', 'console'],
+            'handlers': ['file'],
             'level': 'INFO',
             'propagate': True
         },

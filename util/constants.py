@@ -1,11 +1,3 @@
-# Database related constants
-DB_CONFIG = {
-    'HOST': 'localhost',
-    'PORT': '5432',
-    'DATABASE': 'test_db',
-    'USER': 'postgres',
-    'PASSWORD': '12345'
-}
 
 # Category names
 CATEGORY_DOOR = "ドア"
@@ -34,3 +26,14 @@ DATE_FORMAT = '%Y%m%d'
 
 # Default values
 DEFAULT_DELETE_FLAG = 0 
+
+#Database related 
+CHANGE_SETTING = "設定変更"
+TEST_CONNECTION = "DBへ接続テスト"
+CREATE_TABLES = "テーブル作成"
+CHECK_EXIST_TABLES = "テーブルの存在を確認"
+RESET_DATABASE = "データベースをリセット"
+
+#mode
+CSV_INPUT = "CSVフォルダ入力"
+DATABASE_RELATED = "Database関係"
