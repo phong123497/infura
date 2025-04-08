@@ -2,16 +2,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from enties.master import IdMaster
 import pandas as pd
-from logging_config import logger
-from constants import DB_CONFIG
+from .logging_config import logger
+from util.helper import connect_string
+from util.constants import DATETIME_FORMAT, DEFAULT_DELETE_FLAG
 
 
 class DatabaseManager:
     def __init__(self):
-        self.connection_string = (
-            f"postgresql://{DB_CONFIG['USER']}:{DB_CONFIG['PASSWORD']}@"
-            f"{DB_CONFIG['HOST']}:{DB_CONFIG['PORT']}/{DB_CONFIG['DATABASE']}"
-        )
+        self.connection_string = connect_string()
         self.engine = None
         self.Session = None
         self.processed_created_at = set()
@@ -33,14 +31,14 @@ class DatabaseManager:
             id_master_created_at = []
 
             for idx, row in df.iterrows():
-                created_at_value = pd.to_datetime(row['収集日時'], format='%Y/%m/%d %H:%M', errors="coerce")
+                created_at_value = pd.to_datetime(row['収集日時'], format= DATETIME_FORMAT, errors="coerce")
                 if created_at_value in self.processed_created_at:
-                    logger.info(f"Skipping insert for duplicate created_at: {created_at_value}")
+                    # logger.info(f"Skipping insert for duplicate created_at: {created_at_value}")
                     continue  
 
                 id_master_instance = IdMaster(
                     created_at=created_at_value,
-                    delete_flag=0
+                    delete_flag= DEFAULT_DELETE_FLAG
                 )
                 id_master_instances.append(id_master_instance)
                 

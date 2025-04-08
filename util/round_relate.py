@@ -1,6 +1,4 @@
 from datetime import datetime
-from pathlib import Path
-import os
 round_times = [
     {'start': '06:30', 'end': '07:30', 'round': 1, 'morning': 0},
     {'start': '17:10', 'end': '18:10', 'round': 1, 'morning': 1},
@@ -62,8 +60,6 @@ def round_and_is_morning_mapping(time_input: str):
             break  
         else:
             round_number, is_morning
-            
-    # print("round_number", round_number, "is_morning", is_morning)
     return round_number, is_morning
 
 def check_round_update(time_input: str):
@@ -106,37 +102,3 @@ def get_round_times( round_number: int, is_morning: int) -> tuple:
         
         return round_times.get((round_number, is_morning))
 
-# timestep = datetime.now().strftime("%H:%M")
-# timestep = "07:30"
-# print(timestep)
-# # round_number, is_morning=  round_and_is_morning_mapping(timestep)
-# round_update=  check_round_update(timestep)
-# print(round_update )
-
-
-# def csv_files_in_directory(directory):
-#     files = list(Path(directory).glob("**/*.csv"))
-#     for file_path in files:
-#         length  = len(files)
-#     print(length)
-            
-   
-        
-# dir_path = "C:\\Users\\nguyen-duy-phong\\Downloads\\infura_data\\0322andon\\新しいフォルダー\\Andon" 
-# csv_files_in_directory(dir_path)
-
-# def get_folder_round_name( ):
-#     timenow = datetime.now().strftime("%H:%M")
-#     print(timenow)
-#     timenow = "18:52"
-    
-#     current_round_number = None
-#     for round_time in round_times:
-#         if round_time['start'] <= timenow <= round_time['end']:
-#             current_round_number = round_time['round']
-#             print(f"Current round: {current_round_number:02d}") 
-#             break
-#         else:
-#             print ("kiuke")
-    
-# get_folder_round_name()
