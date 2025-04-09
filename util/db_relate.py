@@ -74,18 +74,6 @@ def delete_tables():
             BaseModel.metadata.tables[table].drop(engine)    
             print(f"Table {table} deleted")
 
-if __name__ == "__main__":
-    
-    # Initialize database
-    # print("\nInitializing database...")
-    # init_database()
-    # # Check existing tables
-    # print("Checking existing tables...")
-    # check_tables_exist()
-    # delete all table 
-    # delete_tables()
-    test_connection = test_connection()
-
 
 
 

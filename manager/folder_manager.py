@@ -10,7 +10,7 @@ class FolderManager:
     def __init__(self, root_dir):
         self.root_dir = root_dir
 
-    def check_folder_type(self):
+    def check_category_type(self):
         folder_categories = os.listdir(self.root_dir)
         result_categories = []
         for category in folder_categories:
@@ -19,22 +19,17 @@ class FolderManager:
                 result_categories.append(category)
             else:
                 logger.warning(f"Unexpected category found: {category}. Skipping.")
-                return None  # Or raise an exception if it's critical
         return result_categories
 
     
     def get_folder_round_name(self):
         timenow = datetime.now().strftime(TIME_FORMAT)
-        # timenow = "07:20"
         current_round_number = None
         for round_time in round_times:
             if round_time['start'] <= timenow < round_time['end']:
                 current_round_number = round_time['round']
                 print(f"Current round: {current_round_number:02d}") 
                 break
-            # else:
-            #     print ("kiuke")
-        
         current_round_number_formatted = f"{current_round_number:02d}"  
         round_now = f"ラウンド{current_round_number_formatted}"
         return round_now
@@ -47,8 +42,8 @@ class FolderManager:
                 if current_date  not in file_path.name:
                     continue
                 try:
-                    # os.remove(file_path)
-                    logger.info(f"Deleted file: {file_path}")
+                    os.remove(file_path)
+                    # logger.info(f"Deleted file: {file_path}")
                 except Exception as e:
                     logger.error(f"Error deleting file {file_path}: {e}", exc_info=True)
             time.sleep(1)

@@ -45,7 +45,6 @@ round_update_time =[
 ]
     
 def round_and_is_morning_mapping(time_input: str):
-    # change time input to time object
     time_obj = datetime.strptime(time_input, '%H:%M').time()
     
     round_number = 0

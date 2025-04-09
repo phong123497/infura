@@ -3,8 +3,6 @@ from tkinter import ttk, messagebox
 from frame_gui import DatabaseFrame, CSVInputFrame  
 import traceback
 from util.constants import CSV_INPUT, DATABASE_RELATED
-
-
 class RunApp:
     def __init__(self, master):
         self.master = master
@@ -16,7 +14,7 @@ class RunApp:
         
         self.current_app = None
         self.create_widgets()
-
+    
     def create_widgets(self):
         # Mode Selection Frame
         mode_frame = tk.Frame(self.master)
@@ -43,11 +41,19 @@ class RunApp:
         # Initialize with MotionBoardApp
         self.switch_mode()
 
-    def switch_mode(self, event=None):
-        # Clean up current app if it exists
+    def cleanup_current_app(self):
+        """Clean up the current app and its resources"""
         if self.current_app:
-            self.current_app.destroy() 
+            # If it's a CSVInputFrame, stop its scheduler
+            if hasattr(self.current_app, 'stop_scheduler'):
+                self.current_app.stop_scheduler()
+            # Destroy the frame
+            self.current_app.destroy()
             self.current_app = None
+
+    def switch_mode(self, event=None):
+        # Clean up current app and its resources
+        self.cleanup_current_app()
 
         selected_mode = self.mode_var.get()
         

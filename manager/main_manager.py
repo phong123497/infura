@@ -6,6 +6,7 @@ from functools import reduce
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
+import threading
 from .logging_config import logger
 from .folder_manager import FolderManager
 from .data_processor import DataProcessor
@@ -23,9 +24,8 @@ from mapper.columns_mapping import (id_master_columns, common_columns, round_mas
 
 from util.constants import (
     CATEGORY_DOOR, CATEGORY_UB, CATEGORY_SM, CATEGORY_ANDON, CATEGORY_NDAI,UB_DOOR_SM_CATEGORIES,
-    TIME_FORMAT,DATETIME_FORMAT, DEFAULT_DELETE_FLAG
+    TIME_FORMAT,DATETIME_FORMAT, DEFAULT_DELETE_FLAG, DATE_FORMAT
 )
-
 
 
 def tabel_names_mapper(category_name):
@@ -64,7 +64,8 @@ class MainManager:
         self.database_manager = DatabaseManager()
         self.is_running = True
         self.temp_dataframes = []
-
+        self._stop_event = threading.Event()
+ 
     def process_category_data(self, merged_df, category_name, table_mappers, session, id_master_ids,
                                   id_master_created_times):
         try:
@@ -151,8 +152,7 @@ class MainManager:
     def process_csv_files(self, data_dir, category_name, all_dataframes):
         # Get all CSV files in the directory
         files = list(Path(data_dir).glob("**/*.csv"))
-        # current_date = datetime.now().strftime(DATE_FORMAT)
-        current_date = "20250325"
+        current_date = datetime.now().strftime(DATE_FORMAT)
         logger.info(f"Processing CSV files in {data_dir} for category {category_name}")
 
         for file_path in files:
@@ -162,9 +162,7 @@ class MainManager:
                 # Read and process CSV file
                 df = self.data_processor.read_and_process_csv(file_path, category_name)
                 if df is not None:
-                    # Convert '収集日時' to datetime and then format it to '%H:%M'
                     df['収集日時'] = pd.to_datetime(df['収集日時'], errors='coerce')
-
                     # Now format '収集日時' to '%Y/%m/%d %H:%M'
                     df['収集日時'] = df['収集日時'].dt.strftime(DATETIME_FORMAT)
                     all_dataframes.append(df)
@@ -178,24 +176,23 @@ class MainManager:
             data_category_dir = os.path.join(self.root_dir, category_name, round_num)
 
             if os.path.exists(data_category_dir) and os.path.isdir(data_category_dir):
-                is_files_exist = self.folder_manager.check_files_exist_in_category(self.root_dir, category_name,
-                                                                                   round_num)
-                if not is_files_exist:
-                    logger.error(f"Directory enough nunber files csv")
-                    return
+                # is_files_exist = self.folder_manager.check_files_exist_in_category(self.root_dir, category_name,
+                #                                                                    round_num)
+                # if not is_files_exist:
+                #     logger.error(f"Directory enough nunber files csv")
+                #     return
                 self.process_csv_files(data_category_dir, category_name, all_dataframes)
 
             else:
                 logger.error(f"Directory {data_category_dir} does not exist or is not a directory.")
                    
             time.sleep(1)
-            # Andon and ndai don
         else:
             data_category_dir = os.path.join(self.root_dir, category_name)
-            is_files_exist = self.folder_manager.check_files_exist_in_category(self.root_dir, category_name,
-                                                                               round_num)
-            if not is_files_exist:
-                return
+            # is_files_exist = self.folder_manager.check_files_exist_in_category(self.root_dir, category_name,
+            #                                                                    round_num)
+            # if not is_files_exist:
+            #     return
             self.process_csv_files(data_category_dir, category_name, all_dataframes)
             logger.info(f"Processing directory: {data_category_dir}")
 
@@ -215,11 +212,10 @@ class MainManager:
         try:
             # check time break before process
             timenow = datetime.now().strftime(TIME_FORMAT)
-            # timenow = "07:00"
             round_number, is_morning = round_and_is_morning_mapping(timenow)
             if round_number == 0 and is_morning == 0:
                 logger.warning("休暇時間中")
-                categories = self.folder_manager.check_folder_type()
+                categories = self.folder_manager.check_category_type()
                 self.database_manager.processed_created_at.clear()
                 # delete all file csv in folder because time break
                 if categories:
@@ -230,7 +226,7 @@ class MainManager:
             else:
                 logger.info(f"Processing data for round: {round_number}, is_morning: {is_morning}")
                 # Get categories from folder manager
-                categories = self.folder_manager.check_folder_type()
+                categories = self.folder_manager.check_category_type()
 
                 if not categories:
                     logger.warning("No valid categories found. Exiting.")
@@ -299,11 +295,10 @@ class MainManager:
                     for category_name in categories:
                         table_mappers = tabel_names_mapper(category_name)
                         if table_mappers and id_master_ids and id_master_created_times:
-                            # Process data by all category
                             self.process_category_data(merged_df_filtered , category_name, table_mappers, session,id_master_ids,id_master_created_times)
                     session.commit()  # Commit if all successful
                     logger.info("Data processing completed successfully. Committing transaction.")
-                    # #  free memory
+                    #  free memory
                     self.cleanup_temporary_dataframes()
                     del merged_df
                     del round_master
@@ -315,38 +310,44 @@ class MainManager:
                 except Exception as e:
                     session.rollback()  # Rollback if any error occurs
                     logger.error(f"Error processing data, rolling back transaction: {e}", exc_info=True)
-                    raise  # Re-raise the exception
+                    raise  
                 finally:
                     session.close()
                     logger.info("Session closed.")
 
         except Exception as e:
            logger.error(f"A error: {e}", exc_info=True)
-    # Add new method for scheduled execution
-    
     def scheduled_execution(self):
-        start_time = time.time()
-        logger.info("Starting scheduled execution...")
-        self.main()
-
-        execution_time = time.time() - start_time
-
-        logger.info(f"Scheduled execution completed in {execution_time:.2f} seconds")
+        try:
+            start_time = time.time()
+            logger.info("Starting scheduled execution...")
+            self.main()
+            execution_time = time.time() - start_time
+            logger.info(f"Scheduled execution completed in {execution_time:.2f} seconds")
+        except Exception as e:
+            logger.error(f"Error in scheduled execution: {e}", exc_info=True)
+            raise  
 
     def stop(self):
+        """Stop the scheduler and cleanup resources"""
+        self._stop_event.set()
         self.is_running = False
-        logger.info("Stopping application...")
+        self.cleanup_temporary_dataframes()
+        logger.info("MainManager stopped")
 
     def run_scheduler(self):
         try:
-            # Schedule the job to run every 20 seconds
             schedule.every(15).seconds.do(self.scheduled_execution)
             logger.info("Scheduler started - running every 15 seconds")
             
             # Keep running until stop is called
-            while self.is_running:
-                schedule.run_pending()
-                time.sleep(1)
+            while self.is_running and not self._stop_event.is_set():
+                try:
+                    schedule.run_pending()
+                    time.sleep(1)
+                except Exception as e:
+                    logger.error(f"Error in scheduler loop: {e}", exc_info=True)
+                    raise  
 
         except KeyboardInterrupt:
             logger.info("Received keyboard interrupt, shutting down...")
@@ -354,20 +355,9 @@ class MainManager:
         except Exception as e:
             logger.error(f"Error in scheduler: {e}", exc_info=True)
             self.stop()
+            raise  
         finally:
             logger.info("Scheduler stopped")
+            self.cleanup_temporary_dataframes()
 
 
-# if __name__ == "__main__":
-    # try:
-       
-    #     root_dir = "C:\\Users\\nguyen-duy-phong\\Downloads\\infura_data\\0322andon\\新しいフォルダー"
-    #     # root_dir = "C:\\Users\\nguyen-duy-phong\\Downloads\\infura_data\\0325data\\0325data"
-    #     app = MainManager(root_dir)
-    #     # Start the scheduler
-    #     app.run_scheduler()
-    #     # app.main()
-
-    # except Exception as e:
-    #     logger.error(f"Application error: {e}", exc_info=True)
-    #     # sys.exit(1)
